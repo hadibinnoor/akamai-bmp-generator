@@ -869,12 +869,20 @@ func (g *Generator) Generate(opts GenerateOpts) string {
 	if opts.CPRSignal == "" {
 		opts.CPRSignal = "0"
 	}
+	// The device id appears TWICE in a sensor: in the plaintext metadata (opts.DeviceID)
+	// and inside the encrypted -100 device fingerprint (profile.AndroidID). They must be
+	// the same value -- the payload is decrypted server-side, so a mismatch is visible.
+	// An override therefore rewrites the profile too, on a copy so the Generator's own
+	// profile is left as it was.
+	profile := g.Device
 	if opts.DeviceID == "" {
-		opts.DeviceID = g.Device.DeviceID
+		opts.DeviceID = profile.DeviceID
+	} else {
+		profile.AndroidID, profile.DeviceID = opts.DeviceID, opts.DeviceID
 	}
 
 	pairs := BuildSensorPairs(
-		g.Device, g.AppPackage, g.AppVersion, g.AppVersionCode,
+		profile, g.AppPackage, g.AppVersion, g.AppVersionCode,
 		g.ServerURL, opts.JSSignals, opts.CPRSignal,
 		opts.NumTouchTaps, opts.NumSensorEvents,
 	)
