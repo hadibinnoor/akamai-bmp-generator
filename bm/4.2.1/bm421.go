@@ -910,6 +910,23 @@ func (bm *BotManager) SetServerSignal(sig string) { bm.serverSignal = sig }
 // SetDeviceID pins the sensor's device id (default: the profile's random Android ID).
 func (bm *BotManager) SetDeviceID(id string) { bm.deviceIDOverride = id }
 
+// SetAppVersion sets the host app's versionName / versionCode the sensor reports
+// (default: DefaultAppVersion / DefaultAppVersionCode, "1.0.0" / 1).
+func (bm *BotManager) SetAppVersion(name string, code int) {
+	bm.Generator.AppVersion, bm.Generator.AppVersionCode = name, code
+}
+
+// EffectiveDeviceID is the device id actually embedded in the sensor.
+func (bm *BotManager) EffectiveDeviceID() string {
+	if bm.deviceIDOverride != "" {
+		return bm.deviceIDOverride
+	}
+	return bm.androidID
+}
+
+// EffectiveAppVersion is the versionName actually embedded in the sensor.
+func (bm *BotManager) EffectiveAppVersion() string { return bm.Generator.AppVersion }
+
 // SetBehaviour sets touch-tap and sensor-event counts (0 keeps the defaults).
 func (bm *BotManager) SetBehaviour(taps, events int) {
 	bm.numTouchTaps, bm.numSensorEvents = taps, events
